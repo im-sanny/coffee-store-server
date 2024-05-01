@@ -6,7 +6,11 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 //middleware
-app.use(cors());
+const corsConfig = {
+  origin: ["http://localhost:5173"],
+  credentials: true,
+};
+app.use(cors(corsConfig));
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.96corz1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -24,7 +28,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const coffeeCollection = client.db("coffeeDB").collection("coffee");
     const userCollection = client.db("coffeeDB").collection("user");
@@ -97,17 +101,17 @@ async function run() {
       res.send(result);
     });
 
-    app.patch('/user', async(req, res) =>{
+    app.patch("/user", async (req, res) => {
       const user = req.body;
-      const filter = {email: user.email }
+      const filter = { email: user.email };
       const updateDoc = {
-        $set:{
-          lastLoggedAt: user.lastLoggedAt
-        }
-      }
-      const result = await userCollection.updateOne(filter, updateDoc)
-      res.send(result)
-    })
+        $set: {
+          lastLoggedAt: user.lastLoggedAt,
+        },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
 
     app.delete("/user/:id", async (req, res) => {
       const id = req.params.id;
